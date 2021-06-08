@@ -85,6 +85,7 @@
   :ensure t)
 ;; (load-theme 'doom-solarized-light t)
 (load-theme 'doom-opera-light t)
+;; (load-theme 'anti-zenburn t)
 
 ;; Hide all minor modes in modeline
 ;; (use-package minions
@@ -102,8 +103,60 @@
 (setq display-time-format "%H:%M:%S")
 (display-time-mode 1)
 
+(use-package exec-path-from-shell
+  :ensure t
+  :if (memq window-system '(mac ns))
+  :config
+  ;; (setq exec-path-from-shell-arguments '("-l"))
+  (exec-path-from-shell-initialize)
+  ;; (exec-path-from-shell-copy-envs
+  ;;  '("GOPATH" "GO111MODULE" "GOPROXY"
+  ;;    "NPMBIN" "LC_ALL" "LANG" "LC_TYPE"
+  ;;    "SSH_AGENT_PID" "SSH_AUTH_SOCK" "SHELL"
+  ;;   "JAVA_HOME"))
+)
 ;; Auto revert file when pdf is updated:
 (global-auto-revert-mode t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Full width comment box                                                 ;;
+;; from http://irreal.org/blog/?p=374                                     ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun bjm-comment-box (b e)
+"Draw a box comment around the region but arrange for the region to extend to at least the fill column. Place the point after the comment box."
+
+(interactive "r")
+
+(let ((e (copy-marker e t)))
+  (goto-char b)
+  (end-of-line)
+  (insert-char ?  (- fill-column (current-column)))
+  (comment-box b e 1)
+  (goto-char e)
+  (set-marker e nil)))
+
+;; (defun my-prog-mode-hook ()
+;;   ;; (auto-fill-mode)
+;;   (show-paren-mode)
+;;   (whitespace-mode)
+;;   (electric-pair-mode)
+;;   (flycheck-mode)
+;;   (display-line-numbers-mode))
+
+;; (add-hook 'prog-mode-hook 'my-prog-mode-hook)
+;; (setq before-save-hook 'nil)
+
+;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+(defun number-region (start end)
+  (interactive "r")
+  (save-restriction
+    (narrow-to-region start end)
+    (goto-char (point-min))
+    (let ((counter 0))
+      (while (re-search-forward "^" nil t)
+        (setq counter (+ 1 counter))
+        (replace-match (format "%d" counter) nil nil)))))
 
 (use-package which-key
   :config (which-key-mode 1))
@@ -192,6 +245,7 @@
     "h"   (general-simulate-key "C-h")
     "u"   (general-simulate-key "C-u")
     "x"   (general-simulate-key "C-x")
+    "X"   'org-capture
 
     ;; Package manager
     "lp"  'list-packages
@@ -311,6 +365,7 @@
   :ensure t
   :init
   (setq evil-want-C-u-scroll t)
+  (setq evil-undo-system 'undo-fu)
   :hook (after-init . evil-mode)
   :config
   (setcdr evil-insert-state-map nil)
@@ -319,6 +374,7 @@
   (evil-set-initial-state 'doc-view-mode 'normal)
   (evil-set-initial-state 'package-menu-mode 'normal)
   (evil-set-initial-state 'biblio-selection-mode 'motion)
+  ;; (evil-set-initial-state 'pdf-view-mode 'normal)
   (setq doc-view-continuous t)
   :general
   (tyrant-def
@@ -326,14 +382,35 @@
     "wl"  'evil-window-right
     "wj"  'evil-window-down
     "wk"  'evil-window-up
-    "bN"  'evil-buffer-new))
+    "bN"  'evil-buffer-new)
+  )
+;; remove the annoying evil-ret from my motion state!!!!
+(with-eval-after-load 'evil-maps
+  (define-key evil-motion-state-map (kbd "SPC") nil)
+  (define-key evil-motion-state-map (kbd "RET") nil)
+  (define-key evil-motion-state-map (kbd "TAB") nil))
+
+(use-package evil-org
+  :commands evil-org-mode
+  :ensure t
+  :after (org evil)
+  :init
+  (add-hook 'org-mode-hook 'evil-org-mode)
+  :config
+  (add-hook 'evil-org-mode-hook
+            (lambda ()
+              (evil-org-set-key-theme '(navigation insert textobjects additional calendar return))))
+  (evil-define-minor-mode-key '(normal motion) 'evil-org-mode
+    "RET" 'evil-org-return)
+  )
 
 (use-package evil-numbers
   :ensure t
   :after evil
   :general
-  ('normal "C-=" 'evil-numbers/inc-at-pt
-           "C--" 'evil-numbers/dec-at-pt))
+  (general-def 'normal
+   "C-=" 'evil-numbers/inc-at-pt
+   "C--" 'evil-numbers/dec-at-pt))
 
 (use-package evil-surround
   :ensure t
@@ -352,7 +429,7 @@
   :config (evil-commentary-mode 1)
 
   :general
-  ('normal override-global-map
+  (general-def 'normal override-global-map
     "gc"  'evil-commentary
     "gC" 'evil-commentary-line))
 
@@ -371,13 +448,20 @@
   :config
   (global-evil-vimish-fold-mode))
 
-(use-package evil-org
+(use-package undo-fu
   :ensure t
-  :after org
-  :hook (org-mode . (lambda () evil-org-mode))
+  ;; :config
+  ;; (global-undo-tree-mode -1)
+  ;; (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
+  ;; (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo)
+  )
+
+(use-package undo-fu-session
+  :ensure t
   :config
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
+
+(global-undo-fu-session-mode)
 
 (use-package company
   :hook (after-init . global-company-mode)
@@ -507,7 +591,6 @@
 ;;   :hook (magit-mode . evil-magit-init))
 
 (require 'tramp)
-(eval-after-load 'tramp '(setenv "SHELL" "/bin/bash"))
 (setq tramp-ssh-controlmaster-options "")
 
 (setq python-shell-interpreter "~/Software/miniconda3/bin/python3")
@@ -598,6 +681,8 @@
   ;; Add the REPORT drawer
   (setq org-drawers '("PROPERTIES" "CLOCK" "LOGBOOK" "REPORT"))
 
+  (setq org-return-follows-link t)
+
   ;; id file
   (setq org-id-locations-file "~/.doom.d/.org-id-locations")
 
@@ -623,8 +708,10 @@
     (visual-line-mode)
     (display-line-numbers-mode t)
     (flyspell-mode)
+    (org-indent-mode)
     (outline-minor-mode)
-    (electric-pair-mode))
+    ;; (electric-pair-mode)
+    )
   (add-hook 'org-mode-hook 'my-org-mode-hooks)
   :general
   (despot-def org-mode-map
@@ -632,7 +719,8 @@
     "mt"   'org-hide-block-toggle
     "mx"   'org-babel-execute-src-block
     "mX"   'org-babel-execute-and-next
-    "md"   'org-babel-remove-result)
+    "md"   'org-babel-remove-result
+    )
   :config
   (if (not (featurep 'ox-bibtex))
       (require 'ox-bibtex))
@@ -738,12 +826,19 @@
   )
 
 (use-package org-roam
-    :ensure t
-    :hook
-    (after-init . org-roam-mode)
-    :custom
-    (org-roam-directory (file-truename "~/Dropbox/Notes/roam"))
-      ;; TODO key bindings
+  :ensure t
+  :defer 10
+  :hook
+  (after-init . org-roam-mode)
+  :custom
+  (org-roam-directory (file-truename "~/Dropbox/Notes/roam"))
+    ;; TODO key bindings
+  :general
+  (tyrant-def 
+    "r"   '(:ignore t :which-key "org-roam")
+    "rf"  'org-roam-find-file
+    "ri"  'org-roam-insert
+    )
   )
 
 (setq org-my-inbox "~/Dropbox/Org/inbox.org")
@@ -1060,14 +1155,20 @@
 :DOI: %D
 :URL: %U
 :END:
-"))
+")
+  :general
+  (tyrant-def bibtex-mode-map
+    "mc" 'org-ref-clean-bibtex-entry
+    "ma" 'org-ref-bibtex-assoc-pdf-with-entry
+    "mp" 'org-ref-bibtex-pdf)
+  )
 
-(defun my/org-ref-notes-function (candidates)
-  (let ((key (helm-marked-candidates)))
-    (funcall org-ref-notes-function (car key))))
-(helm-delete-action-from-source "Edit notes" helm-source-bibtex)
-;; Note that 7 is a magic number of the index where you want to insert the command. You may need to change yours.
-(helm-add-action-to-source "Edit notes" 'my/org-ref-notes-function helm-source-bibtex 7)
+;; (defun my/org-ref-notes-function (candidates)
+;;   (let ((key (helm-marked-candidates)))
+;;     (funcall org-ref-notes-function (car key))))
+;; (helm-delete-action-from-source "Edit notes" helm-source-bibtex)
+;; ;; Note that 7 is a magic number of the index where you want to insert the command. You may need to change yours.
+;; (helm-add-action-to-source "Edit notes" 'my/org-ref-notes-function helm-source-bibtex 7)
 
 (use-package ob-ipython
   :hook (org-mode . my-ob-ipython-hook)
@@ -1109,8 +1210,8 @@
 ;;     "mr"   'org-ref-helm-insert-ref-link
 ;;     "ml"   'org-ref-helm-insert-label-link))
 
-(use-package org-bullets
-  :hook (org-mode . org-bullets-mode))
+;; (use-package org-bullets
+;;   :hook (org-mode . org-bullets-mode))
 
 (use-package org-pomodoro
   :general
@@ -1156,15 +1257,17 @@
     "mf"   'insert-file-name-base))
 
 (use-package reftex
+  :ensure t
   :hook (LaTeX-mode . turn-on-reftex)
   :config
   (setq reftex-plug-into-AUCTeX t))
 
 (use-package cdlatex
-  :after (:any org-mode LaTeX-mode)
+  :ensure t
+  ;; :after (:any org-mode LaTeX-mode)
   :hook
-  (LaTeX-mode . turn-on-cdlatex)
   (org-mode   . turn-on-org-cdlatex)
+  (LaTeX-mode . turn-on-cdlatex)
   :config
   (add-to-list 'cdlatex-parens-pairs '("\\(" . "\\)"))
   (setq cdlatex-math-symbol-alist
@@ -1219,6 +1322,9 @@
           ("rmk" "Insert remark env" "" cdlatex-environment ("remark")
            t nil)))
     ;; :general keybindings TODO
+  :general
+  (general-def '(normal insert) org-mode-map
+    "M-;" 'cdlatex-tab)
   )
 
 (use-package auctex-latexmk
@@ -1267,6 +1373,12 @@
         bibtex-autokey-titlewords-stretch 1
         bibtex-autokey-titleword-length 5)
 
+  (tyrant-def bibtex-mode-map
+    "mi" 'doi-insert-bibtex)
+  (general-def 'normal biblio-selection-mode-map
+    "j" 'biblio--selection-next
+    "k" 'biblio--selection-previous))
+
 (use-package ivy-bibtex
   :after (ivy)
   :defines bibtex-completion-bibliography
@@ -1283,26 +1395,25 @@
   :general
   (tyrant-def "ab" 'helm-bibtex))
 
-  (tyrant-def bibtex-mode-map
-    "mi" 'doi-insert-bibtex
-    "mc" 'bibtex-clean-entry)
-  (general-def 'normal biblio-selection-mode-map
-    "j" 'biblio--selection-next
-    "k" 'biblio--selection-previous))
-
-;;(use-package pdf-tools
-;;  :defer 5
-;;  :config
-;;  (pdf-tools-install)
-;;  :general
-;;  (general-def 'normal pdf-view-mode-map
-;;    "j"   'pdf-tools-next-line-or-next-page
-;;    "k"   'pdf-tools-previous-line-or-previous-page
-;;    "gg"  'pdf-tools-first-page
-;;    "G"   'pdf-tools-last-page
-;;    "C-d" 'pdf-tools-scroll-up-or-next-page
-;;    "C-f" 'pdf-tools-scroll-up-or-next-page
-;;    "C-b" 'pdf-tools-scroll-down-or-previous-page))
+(use-package pdf-tools
+  :ensure t
+ ;; :defer 5
+  :config
+  (pdf-tools-install)
+  :general
+  ;; (general-def 'normal pdf-view-mode-map
+  ;;   "H"   'pdf-view-fit-page-to-window
+  ;;   "W"   'pdf-view-fit-width-to-window
+  ;;   "P"   'pdf-view-fit-page-to-window
+  ;;   "j"   'pdf-view-next-line-or-next-page
+  ;;   "k"   'pdf-view-previous-line-or-previous-page
+  ;;   "gg"  'pdf-view-first-page
+  ;;   "G"   'pdf-view-last-page
+  ;;   "C-d" 'pdf-view-scroll-up-or-next-page
+  ;;   "C-f" 'pdf-view-scroll-up-or-next-page
+  ;;   "C-b" 'pdf-view-scroll-down-or-previous-page
+  ;;   )
+  )
 
 (defun doom/open-agenda (&optional arg)
   "Open org-agenda directly"
@@ -1339,57 +1450,7 @@
  "<f9>" #'doom/open-agenda
  "<f10>" 'my/copy-idlink-to-clipboard)
 
-;; (map!
-;;  :n "<f5>" 'my/toggle-theme
-;;  :ni "<f6>" 'helm-bibtex
-;;  ;; :ni "<f6>" 'ivy-bibtex
-;;  :n "<f7>" #'doom/open-diary
-;;  :n "<f8>" #'doom/open-gtd
-;;  :n "<f9>" #'doom/open-agenda
-;;  :n "<C-f9>" #'cfw:open-org-calendar
-;;  :n "<f10>" 'my/copy-idlink-to-clipboard)
-
 ;;(global-set-key)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Full width comment box                                                 ;;
-;; from http://irreal.org/blog/?p=374                                     ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun bjm-comment-box (b e)
-"Draw a box comment around the region but arrange for the region to extend to at least the fill column. Place the point after the comment box."
-
-(interactive "r")
-
-(let ((e (copy-marker e t)))
-  (goto-char b)
-  (end-of-line)
-  (insert-char ?  (- fill-column (current-column)))
-  (comment-box b e 1)
-  (goto-char e)
-  (set-marker e nil)))
-
-;; (defun my-prog-mode-hook ()
-;;   ;; (auto-fill-mode)
-;;   (show-paren-mode)
-;;   (whitespace-mode)
-;;   (electric-pair-mode)
-;;   (flycheck-mode)
-;;   (display-line-numbers-mode))
-
-;; (add-hook 'prog-mode-hook 'my-prog-mode-hook)
-;; (setq before-save-hook 'nil)
-
-;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-(defun number-region (start end)
-  (interactive "r")
-  (save-restriction
-    (narrow-to-region start end)
-    (goto-char (point-min))
-    (let ((counter 0))
-      (while (re-search-forward "^" nil t)
-        (setq counter (+ 1 counter))
-        (replace-match (format "%d" counter) nil nil)))))
 
 (eval-when-compile
 (setq-default custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -1400,4 +1461,5 @@
 (add-hook 'emacs-startup-hook '(lambda ()
                 (setq gc-cons-threshold 16777216 gc-cons-percentage 0.1
                         file-name-handler-alist temp--file-name-handler-alist))))
+(setq initial-buffer-choice 'about-emacs)
 (setq initial-scratch-message (concat "Startup time: " (emacs-init-time)))

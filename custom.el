@@ -23,7 +23,7 @@
    '("#336c6c" "#205070" "#0f2050" "#806080" "#401440" "#6c1f1c" "#6b400c" "#23733c"))
  '(objed-cursor-color "#ff6c6b")
  '(package-selected-packages
-   '(shell-pop helm-bibtex ivy-bibtex company-bibtex company-reftex auctex-latexmk cdlatex auctex ox-reveal org-pomodoro org-bullets ob-ipython org-plus-contrib undo-tree editorconfig yasnippet-snippets yasnippet sphinx-doc yapfify company-jedi magit flycheck helm-projectile helm-flyspell helm counsel-projectile flyspell-correct-ivy counsel smex ivy projectile company-statistics company-quickhelp company evil-org evil-visualstar evil-commentary evil-easymotion evil-surround evil-numbers evil ranger suggest general which-key doom-modeline anti-zenburn-theme doom-themes use-package))
+   '(auctex-lua electric-pair-mode electric-pair shell-pop helm-bibtex ivy-bibtex company-bibtex company-reftex auctex-latexmk cdlatex auctex ox-reveal org-pomodoro org-bullets ob-ipython org-plus-contrib undo-tree editorconfig yasnippet-snippets yasnippet sphinx-doc yapfify company-jedi magit flycheck helm-projectile helm-flyspell helm counsel-projectile flyspell-correct-ivy counsel smex ivy projectile company-statistics company-quickhelp company evil-org evil-visualstar evil-commentary evil-easymotion evil-surround evil-numbers evil ranger suggest general which-key doom-modeline anti-zenburn-theme doom-themes use-package))
  '(pdf-view-midnight-colors (cons "#bbc2cf" "#282c34"))
  '(rustic-ansi-faces
    ["#282c34" "#ff6c6b" "#98be65" "#ECBE7B" "#51afef" "#c678dd" "#46D9FF" "#bbc2cf"])
