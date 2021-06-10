@@ -1232,16 +1232,19 @@
   :init
   (add-hook 'LaTeX-mode-hook 'my-LaTeX-mode-hooks)
   (defun my-LaTeX-mode-hooks ()
-    (whitespace-mode)
+    ;; (whitespace-mode)
     (show-paren-mode)
     (visual-line-mode)
     (flyspell-mode)
     (outline-minor-mode)
+    ;; (electric-pair-mode)
     (display-line-numbers-mode t)
     (TeX-source-correlate-mode t))
   :config
   (setq TeX-auto-save t
-        TeX-source-correlate-start-server 'synctex)
+        TeX-source-correlate-start-server 'synctex
+        ;; LaTeX-electric-left-right-brace t
+        )
   (defun insert-file-name-base (file)
     "Read file name and insert it at point.
     With a prefix argument, insert only the non-directory part."
@@ -1270,6 +1273,7 @@
   (LaTeX-mode . turn-on-cdlatex)
   :config
   (add-to-list 'cdlatex-parens-pairs '("\\(" . "\\)"))
+  (add-to-list 'cdlatex-parens-pairs '("\\[" . "\\]"))
   (setq cdlatex-math-symbol-alist
         '(
           (?0 ("\\varnothing" "\\emptyset" ""))
@@ -1324,6 +1328,8 @@
     ;; :general keybindings TODO
   :general
   (general-def '(normal insert) org-mode-map
+    "M-;" 'cdlatex-tab)
+  (general-def '(normal insert) LaTeX-mode-map
     "M-;" 'cdlatex-tab)
   )
 

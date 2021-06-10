@@ -1465,175 +1465,181 @@ Org related packages
 ** Tex
 
    #+BEGIN_SRC emacs-lisp
-        (use-package tex
-          :defer t
-          :mode ("\\.tex\\'" . TeX-latex-mode)
-          :ensure auctex
-          :init
-          (add-hook 'LaTeX-mode-hook 'my-LaTeX-mode-hooks)
-          (defun my-LaTeX-mode-hooks ()
-            (whitespace-mode)
-            (show-paren-mode)
-            (visual-line-mode)
-            (flyspell-mode)
-            (outline-minor-mode)
-            (display-line-numbers-mode t)
-            (TeX-source-correlate-mode t))
-          :config
-          (setq TeX-auto-save t
-                TeX-source-correlate-start-server 'synctex)
-          (defun insert-file-name-base (file)
-            "Read file name and insert it at point.
-            With a prefix argument, insert only the non-directory part."
-            (interactive "FFile:")
-            (insert (file-name-base file)))
-          :general
-          (despot-def TeX-mode-map
-            "mb"   'TeX-command-master
-            "ma"   'TeX-command-run-all
-            "mv"   'TeX-view
-            "mc"   'reftex-citation
-            "mr"   'reftex-reference
-            "mf"   'insert-file-name-base))
+     (use-package tex
+       :defer t
+       :mode ("\\.tex\\'" . TeX-latex-mode)
+       :ensure auctex
+       :init
+       (add-hook 'LaTeX-mode-hook 'my-LaTeX-mode-hooks)
+       (defun my-LaTeX-mode-hooks ()
+         ;; (whitespace-mode)
+         (show-paren-mode)
+         (visual-line-mode)
+         (flyspell-mode)
+         (outline-minor-mode)
+         ;; (electric-pair-mode)
+         (display-line-numbers-mode t)
+         (TeX-source-correlate-mode t))
+       :config
+       (setq TeX-auto-save t
+             TeX-source-correlate-start-server 'synctex
+             ;; LaTeX-electric-left-right-brace t
+             )
+       (defun insert-file-name-base (file)
+         "Read file name and insert it at point.
+         With a prefix argument, insert only the non-directory part."
+         (interactive "FFile:")
+         (insert (file-name-base file)))
+       :general
+       (despot-def TeX-mode-map
+         "mb"   'TeX-command-master
+         "ma"   'TeX-command-run-all
+         "mv"   'TeX-view
+         "mc"   'reftex-citation
+         "mr"   'reftex-reference
+         "mf"   'insert-file-name-base))
      
-        (use-package reftex
-          :ensure t
-          :hook (LaTeX-mode . turn-on-reftex)
-          :config
-          (setq reftex-plug-into-AUCTeX t))
+     (use-package reftex
+       :ensure t
+       :hook (LaTeX-mode . turn-on-reftex)
+       :config
+       (setq reftex-plug-into-AUCTeX t))
      
-        (use-package cdlatex
-          :ensure t
-          ;; :after (:any org-mode LaTeX-mode)
-          :hook
-          (org-mode   . turn-on-org-cdlatex)
-          (LaTeX-mode . turn-on-cdlatex)
-          :config
-          (add-to-list 'cdlatex-parens-pairs '("\\(" . "\\)"))
-          (setq cdlatex-math-symbol-alist
-                '(
-                  (?0 ("\\varnothing" "\\emptyset" ""))
-                  (?{ ("\\min" "\\inf" ""))
-                  (?} ("\\max" "\\sup" ""))
-                  (?< ("\\subseteq" "\\subset" ""))
-                  (?> ("\\supseteq" "\\supset" ""))
-                  (?D  ("\\Delta" "\\nabla" "\\displaystyle"))
-                  (?: ("\\colon", "", ""))
-                  (?H ("\\hop", "", ""))
-                  (?T ("\\top" "" "\\arctan"))
-                  )
-                cdlatex-math-modify-alist
-                '(
-                  (?B "\\mathbb" nil t nil nil)
-                  (?a "\\abs" nil t nil nil)
-                  (?- "\\overline" nil t nil nil)
-                  (?0 "\\text" nil t nil nil)))
-          (setq cdlatex-env-alist
-                '(
-                  ("axiom" "\\begin{axiom}\n?\n\\end{axiom}\n" nil)
-                  ("proof" "\\begin{proof}\n?\n\\end{proof}\n" nil)
-                  ("lemma" "\\begin{lemma}\n?\n\\end{lemma}\n" nil)
-                  ("lem" "\\begin{lem}\n?\n\\end{lem}\n" nil)
-                  ("theorem" "\\begin{theorem}\n?\n\\end{theorem}\n" nil)
-                  ("thm" "\\begin{thm}\n?\n\\end{thm}\n" nil)
-                  ("corollary" "\\begin{corollary}\n?\n\\end{corollary}\n" nil)
-                  ("cor" "\\begin{cor}\n?\n\\end{cor}\n" nil)
-                  ("proposition" "\\begin{proposition}\n\n\\end{proposition}\n" nil)
-                  ("prop" "\\begin{prop}\n\n\\end{prop}\n" nil)
-                  ("problem" "\\begin{problem}\n?\n\\end{problem}\n" nil)
-                  ("solution" "\\begin{solution}\n?\n\\end{solution}\n" nil)
-                  ("remark" "\\begin{remark}\n?\n\\end{remark}\n" nil)
-                  ("aligned" "\\begin{aligned}\n?\n\\end{aligned}\n" nil)
-                  ("comment box" "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n% ?\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%", nil)
-                  )
-                cdlatex-command-alist
-                '(
-                  ("cmt" "Insert Comment Box" "" cdlatex-environment ("comment box") t nil)
-                  ("Set" "Insert \\Set{}" "\\Set{?}" cdlatex-position-cursor nil nil t)
-                  ("set" "Insert \\set{}" "\\set{?}" cdlatex-position-cursor nil nil t)
-                  ("alid" "Insert aligned env" "" cdlatex-environment ("aligned") t nil)
-                  ("axm" "Insert axiom env" "" cdlatex-environment ("axiom") t nil)
-                  ("thm" "Insert theorem env" "" cdlatex-environment ("theorem") t nil)
-                  ("lem" "Insert lemma env" "" cdlatex-environment ("lemma") t nil)
-                  ("cor" "Insert corollary env" "" cdlatex-environment ("corollary") t nil)
-                  ("prop" "Insert proposition env" "" cdlatex-environment ("proposition") t nil)
-                  ("prob" "Insert problem env" "" cdlatex-environment ("problem") t nil)
-                  ("sol" "Insert solution env" "" cdlatex-environment ("solution") t nil)
-                  ("rmk" "Insert remark env" "" cdlatex-environment ("remark")
-                   t nil)))
-            ;; :general keybindings TODO
-          :general
-          (general-def '(normal insert) org-mode-map
-            "M-;" 'cdlatex-tab)
-          )
+     (use-package cdlatex
+       :ensure t
+       ;; :after (:any org-mode LaTeX-mode)
+       :hook
+       (org-mode   . turn-on-org-cdlatex)
+       (LaTeX-mode . turn-on-cdlatex)
+       :config
+       (add-to-list 'cdlatex-parens-pairs '("\\(" . "\\)"))
+       (add-to-list 'cdlatex-parens-pairs '("\\[" . "\\]"))
+       (setq cdlatex-math-symbol-alist
+             '(
+               (?0 ("\\varnothing" "\\emptyset" ""))
+               (?{ ("\\min" "\\inf" ""))
+               (?} ("\\max" "\\sup" ""))
+               (?< ("\\subseteq" "\\subset" ""))
+               (?> ("\\supseteq" "\\supset" ""))
+               (?D  ("\\Delta" "\\nabla" "\\displaystyle"))
+               (?: ("\\colon", "", ""))
+               (?H ("\\hop", "", ""))
+               (?T ("\\top" "" "\\arctan"))
+               )
+             cdlatex-math-modify-alist
+             '(
+               (?B "\\mathbb" nil t nil nil)
+               (?a "\\abs" nil t nil nil)
+               (?- "\\overline" nil t nil nil)
+               (?0 "\\text" nil t nil nil)))
+       (setq cdlatex-env-alist
+             '(
+               ("axiom" "\\begin{axiom}\n?\n\\end{axiom}\n" nil)
+               ("proof" "\\begin{proof}\n?\n\\end{proof}\n" nil)
+               ("lemma" "\\begin{lemma}\n?\n\\end{lemma}\n" nil)
+               ("lem" "\\begin{lem}\n?\n\\end{lem}\n" nil)
+               ("theorem" "\\begin{theorem}\n?\n\\end{theorem}\n" nil)
+               ("thm" "\\begin{thm}\n?\n\\end{thm}\n" nil)
+               ("corollary" "\\begin{corollary}\n?\n\\end{corollary}\n" nil)
+               ("cor" "\\begin{cor}\n?\n\\end{cor}\n" nil)
+               ("proposition" "\\begin{proposition}\n\n\\end{proposition}\n" nil)
+               ("prop" "\\begin{prop}\n\n\\end{prop}\n" nil)
+               ("problem" "\\begin{problem}\n?\n\\end{problem}\n" nil)
+               ("solution" "\\begin{solution}\n?\n\\end{solution}\n" nil)
+               ("remark" "\\begin{remark}\n?\n\\end{remark}\n" nil)
+               ("aligned" "\\begin{aligned}\n?\n\\end{aligned}\n" nil)
+               ("comment box" "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n% ?\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%", nil)
+               )
+             cdlatex-command-alist
+             '(
+               ("cmt" "Insert Comment Box" "" cdlatex-environment ("comment box") t nil)
+               ("Set" "Insert \\Set{}" "\\Set{?}" cdlatex-position-cursor nil nil t)
+               ("set" "Insert \\set{}" "\\set{?}" cdlatex-position-cursor nil nil t)
+               ("alid" "Insert aligned env" "" cdlatex-environment ("aligned") t nil)
+               ("axm" "Insert axiom env" "" cdlatex-environment ("axiom") t nil)
+               ("thm" "Insert theorem env" "" cdlatex-environment ("theorem") t nil)
+               ("lem" "Insert lemma env" "" cdlatex-environment ("lemma") t nil)
+               ("cor" "Insert corollary env" "" cdlatex-environment ("corollary") t nil)
+               ("prop" "Insert proposition env" "" cdlatex-environment ("proposition") t nil)
+               ("prob" "Insert problem env" "" cdlatex-environment ("problem") t nil)
+               ("sol" "Insert solution env" "" cdlatex-environment ("solution") t nil)
+               ("rmk" "Insert remark env" "" cdlatex-environment ("remark")
+                t nil)))
+         ;; :general keybindings TODO
+       :general
+       (general-def '(normal insert) org-mode-map
+         "M-;" 'cdlatex-tab)
+       (general-def '(normal insert) LaTeX-mode-map
+         "M-;" 'cdlatex-tab)
+       )
      
-        (use-package auctex-latexmk
-          :hook (LaTeX-mode . auctex-latexmk-setup)
-          :config
-          (setq auctex-latexmk-inherit-TeX-PDF-mode t))
+     (use-package auctex-latexmk
+       :hook (LaTeX-mode . auctex-latexmk-setup)
+       :config
+       (setq auctex-latexmk-inherit-TeX-PDF-mode t))
      
-        (use-package company-reftex
-          :after company
-          :hook (reftex-mode . load-company-reftex)
-          :config
-          (defun load-company-reftex ()
-            (add-to-list 'company-backends
-                         '(company-reftex-citations
-                           company-reftex-labels))))
+     (use-package company-reftex
+       :after company
+       :hook (reftex-mode . load-company-reftex)
+       :config
+       (defun load-company-reftex ()
+         (add-to-list 'company-backends
+                      '(company-reftex-citations
+                        company-reftex-labels))))
      
-        (use-package company-bibtex
-          :after company
-          :hook (org-mode . load-company-bibtex)
-          :config
-          (defun load-company-bibtex ()
-            (add-to-list 'company-backends 'company-bibtex))
+     (use-package company-bibtex
+       :after company
+       :hook (org-mode . load-company-bibtex)
+       :config
+       (defun load-company-bibtex ()
+         (add-to-list 'company-backends 'company-bibtex))
      
-          (if (eq system-type 'darwin)
-            (setq company-bibtex-bibliography
-                  '("~/Documents/bib_file/papers.bib"
-                    "~/Documents/bib_file/selfpapers.bib"))
-            (setq company-bibtex-bibliography
-                  '("~/bibtex/papers.bib"
-                    "~/bibtex/selfpapers.bib")))
-          (setq company-bibtex-org-citation-regex (regexp-opt '("cite:" "\\cite{"))))
+       (if (eq system-type 'darwin)
+         (setq company-bibtex-bibliography
+               '("~/Documents/bib_file/papers.bib"
+                 "~/Documents/bib_file/selfpapers.bib"))
+         (setq company-bibtex-bibliography
+               '("~/bibtex/papers.bib"
+                 "~/bibtex/selfpapers.bib")))
+       (setq company-bibtex-org-citation-regex (regexp-opt '("cite:" "\\cite{"))))
      
-        (defun set-bibtex-config ()
-          (setq bibtex-completion-bibliography '("~/Documents/Papers/master.bib")
-                bibtex-completion-library-path '("~/Documents/Papers/pdfs")
-                bibtex-completion-notes-path "~/Documents/Papers/notes"
-                bibtex-completion-find-additional-pdfs t
-                bibtex-completion-additional-search-fields '(keywords)
-                bibtex-completion-pdf-symbol "⌘"
-                bibtex-completion-notes-symbol "✎"
-                bibtex-autokey-year-length 4
-                bibtex-autokey-name-year-separator "-"
-                bibtex-autokey-year-title-separator "-"
-                bibtex-autokey-titleword-separator "-"
-                bibtex-autokey-titlewords 2
-                bibtex-autokey-titlewords-stretch 1
-                bibtex-autokey-titleword-length 5)
+     (defun set-bibtex-config ()
+       (setq bibtex-completion-bibliography '("~/Documents/Papers/master.bib")
+             bibtex-completion-library-path '("~/Documents/Papers/pdfs")
+             bibtex-completion-notes-path "~/Documents/Papers/notes"
+             bibtex-completion-find-additional-pdfs t
+             bibtex-completion-additional-search-fields '(keywords)
+             bibtex-completion-pdf-symbol "⌘"
+             bibtex-completion-notes-symbol "✎"
+             bibtex-autokey-year-length 4
+             bibtex-autokey-name-year-separator "-"
+             bibtex-autokey-year-title-separator "-"
+             bibtex-autokey-titleword-separator "-"
+             bibtex-autokey-titlewords 2
+             bibtex-autokey-titlewords-stretch 1
+             bibtex-autokey-titleword-length 5)
      
-          (tyrant-def bibtex-mode-map
-            "mi" 'doi-insert-bibtex)
-          (general-def 'normal biblio-selection-mode-map
-            "j" 'biblio--selection-next
-            "k" 'biblio--selection-previous))
+       (tyrant-def bibtex-mode-map
+         "mi" 'doi-insert-bibtex)
+       (general-def 'normal biblio-selection-mode-map
+         "j" 'biblio--selection-next
+         "k" 'biblio--selection-previous))
      
-        (use-package ivy-bibtex
-          :after (ivy)
-          :defines bibtex-completion-bibliography
-          :config
-          (set-bibtex-config)
-          :general
-          (tyrant-def "ab" 'ivy-bibtex))
+     (use-package ivy-bibtex
+       :after (ivy)
+       :defines bibtex-completion-bibliography
+       :config
+       (set-bibtex-config)
+       :general
+       (tyrant-def "ab" 'ivy-bibtex))
      
-        (use-package helm-bibtex
-          :after (helm)
-          :defines bibtex-completion-bibliography
-          :config
-          (set-bibtex-config)
-          :general
-          (tyrant-def "ab" 'helm-bibtex))
+     (use-package helm-bibtex
+       :after (helm)
+       :defines bibtex-completion-bibliography
+       :config
+       (set-bibtex-config)
+       :general
+       (tyrant-def "ab" 'helm-bibtex))
      
    #+END_SRC
 
@@ -1725,7 +1731,6 @@ Org related packages
 
 * Other configs
 
-
 * Post-processing
 
   #+BEGIN_SRC emacs-lisp
@@ -1741,3 +1746,4 @@ Org related packages
     (setq initial-buffer-choice 'about-emacs)
     (setq initial-scratch-message (concat "Startup time: " (emacs-init-time)))
   #+END_SRC
+  
