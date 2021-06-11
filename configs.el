@@ -56,7 +56,8 @@
   (require 'use-package)
   (setq use-package-always-ensure t))
 
-(setq default-frame-alist '((font . "Courier 10 Pitch-13")))
+;; (setq default-frame-alist '((font . "Courier 10 Pitch-13")))
+(setq default-frame-alist '((font . "Consolas-13")))
 ;; (setq doom-font (font-spec :family "Monaco" :size 13))
 ;; (setq doom-font (font-spec :family "Source Code Pro" :size 13))
 ;; (setq doom-font (font-spec :family "Courier New" :size 13))
@@ -84,7 +85,8 @@
 (use-package anti-zenburn-theme
   :ensure t)
 ;; (load-theme 'doom-solarized-light t)
-(load-theme 'doom-opera-light t)
+;; (load-theme 'doom-opera-light t)
+(load-theme 'doom-nord-light t)
 ;; (load-theme 'anti-zenburn t)
 
 ;; Hide all minor modes in modeline
@@ -258,13 +260,13 @@
     "td"  'load-dichromacy-theme
 
     ;; Quit operations
-    "q"	  '(:ignore t :which-key "quit emacs")
+    "q"   '(:ignore t :which-key "quit emacs")
     "qq"  'kill-emacs
     "qz"  'delete-frame
 
     ;; Buffer operations
     "b"   '(:ignore t :which-key "buffer")
-    "bb"  'mode-line-other-buffer
+    ;; "bb"  'mode-line-other-buffer
     "bk"  'kill-this-buffer
     "bn"  'next-buffer
     "bp"  'previous-buffer
@@ -359,7 +361,7 @@
 
 (use-package ranger
   :hook (after-init . ranger-override-dired-mode)
-  :general (tyrant-def "ar" 'ranger))
+  :general (tyrant-def "fd" 'ranger))
 
 (use-package evil
   :ensure t
@@ -547,7 +549,7 @@
   :general
   (tyrant-def
    "SPC" 'helm-M-x
-   "bl"  'helm-mini
+   "bb"  'helm-mini
    "ff"  'helm-find-files
    "fr"  'helm-recentf
    "fL"  'helm-locate))
@@ -730,8 +732,7 @@
            (org-babel-next-src-block)))
   (setq org-highlight-latex-and-related '(entities script latex)
         org-tags-column 90)
-  (set-org-general-config)
-  )
+  (set-org-general-config))
 
 (defun my/copy-idlink-to-clipboard()
   "Copy an ID link with the headline to killring, if no ID is there then create a new unique ID. This function works only in org-mode or org-agenda buffers. The purpose of this function is to easily construct id:-links to org-mode items. If its assigned to a key it saves you marking the text and copying to the killring."
@@ -894,10 +895,10 @@
         ))
 (setq org-archive-location "~/Documents/Org/archives/archives.org::")
 
-(defadvice org-agenda (around split-vertically activate)
-  (let ((split-width-threshold 40)    ; or whatever width makes sense for you
-        (split-height-threshold nil)) ; but never horizontally
-    ad-do-it))
+;; (defadvice org-agenda (around split-vertically activate)
+;;   (let ((split-width-threshold 40)    ; or whatever width makes sense for you
+;;         (split-height-threshold nil)) ; but never horizontally
+;;     ad-do-it))
 
 (use-package org-super-agenda
   :ensure t

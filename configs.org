@@ -85,7 +85,8 @@
 ** Font Face
 
 #+BEGIN_SRC emacs-lisp
-  (setq default-frame-alist '((font . "Courier 10 Pitch-13")))
+  ;; (setq default-frame-alist '((font . "Courier 10 Pitch-13")))
+  (setq default-frame-alist '((font . "Consolas-13")))
   ;; (setq doom-font (font-spec :family "Monaco" :size 13))
   ;; (setq doom-font (font-spec :family "Source Code Pro" :size 13))
   ;; (setq doom-font (font-spec :family "Courier New" :size 13))
@@ -118,7 +119,8 @@
   (use-package anti-zenburn-theme
     :ensure t)
   ;; (load-theme 'doom-solarized-light t)
-  (load-theme 'doom-opera-light t)
+  ;; (load-theme 'doom-opera-light t)
+  (load-theme 'doom-nord-light t)
   ;; (load-theme 'anti-zenburn t)
 #+end_src
 
@@ -232,198 +234,201 @@ source: https://emacs.stackexchange.com/questions/47633/elisp-program-to-insert-
 ** general.el
 
 #+BEGIN_SRC emacs-lisp
-(use-package general
-  :after which-key
-  :config
-  (general-override-mode 1)
-
-  (defun find-user-init-file ()
-    "Edit the `user-init-file', in same window."
-    (interactive)
-    (find-file user-init-file))
-  (defun load-user-init-file ()
-    "Load the `user-init-file', in same window."
-    (interactive)
-    (load-file user-init-file))
-
-  ;;Taken from http://emacsredux.com/blog/2013/05/04/rename-file-and-buffer/
-  (defun rename-file-and-buffer ()
-    "Rename the current buffer and file it is visiting."
-    (interactive)
-    (let ((filename (buffer-file-name)))
-      (if (not (and filename (file-exists-p filename)))
-          (message "Buffer is not visiting a file!")
-        (let ((new-name (read-file-name "New name: " filename)))
-          (cond
-           ((vc-backend filename) (vc-rename-file filename new-name))
-           (t
-            (rename-file filename new-name t)
-            (set-visited-file-name new-name t t)))))))
-
-
-  (defun disable-all-themes ()
-    "disable all active themes."
-    (dolist (i custom-enabled-themes)
-      (disable-theme i)))
-
-  (defadvice load-theme (before disable-themes-first activate)
-    (disable-all-themes))
-
-  ;; Following lines to cycle through themes adapted from ivan's answer on
-  ;; https://emacs.stackexchange.com/questions/24088/make-a-function-to-toggle-themes
-  (setq my/themes (custom-available-themes))
-  (setq my/themes-index 0)
-
-  (defun my/cycle-theme ()
-    "Cycles through my themes."
-    (interactive)
-    (setq my/themes-index (% (1+ my/themes-index) (length my/themes)))
-    (my/load-indexed-theme))
-
-  (defun my/load-indexed-theme ()
-    (load-theme (nth my/themes-index my/themes)))
-
-  (defun load-leuven-theme ()
-    "Loads `leuven' theme"
-    (interactive)
-    (load-theme 'leuven))
-
-  (defun load-dichromacy-theme ()
-    "Loads `dichromacy' theme"
-    (interactive)
-    (load-theme 'dichromacy))
-
-  (general-create-definer tyrant-def
-    :states '(normal visual insert motion emacs)
-    :prefix "SPC"
-    :non-normal-prefix "C-SPC")
-
-  (general-create-definer despot-def
-    :states '(normal insert)
-    :prefix "SPC"
-    :non-normal-prefix "C-SPC")
-
-  (general-define-key
-    :keymaps 'key-translation-map
-    "ESC" (kbd "C-g"))
-
-  (general-def
-    "C-x x" 'eval-defun)
-
-  (tyrant-def
-    ""     nil
-    "c"   (general-simulate-key "C-c")
-    "h"   (general-simulate-key "C-h")
-    "u"   (general-simulate-key "C-u")
-    "x"   (general-simulate-key "C-x")
-    "X"   'org-capture
-
-    ;; Package manager
-    "lp"  'list-packages
-
-    ;; Theme operations
-    "t"   '(:ignore t :which-key "themes")
-    "tn"  'my/cycle-theme
-    "tt"  'load-theme
-    "tl"  'load-leuven-theme
-    "td"  'load-dichromacy-theme
-
-    ;; Quit operations
-    "q"	  '(:ignore t :which-key "quit emacs")
-    "qq"  'kill-emacs
-    "qz"  'delete-frame
-
-    ;; Buffer operations
-    "b"   '(:ignore t :which-key "buffer")
-    "bb"  'mode-line-other-buffer
-    "bk"  'kill-this-buffer
-    "bn"  'next-buffer
-    "bp"  'previous-buffer
-    ;; "bk"  'kill-buffer-and-window
-    "bR"  'rename-file-and-buffer
-    "br"  'revert-buffer
-
-    ;; Window operations
-    "w"   '(:ignore t :which-key "window")
-    "wm"  'maximize-window
-    "w/"  'split-window-horizontally
-    "wv"  'split-window-vertically
-    "wm"  'maximize-window
-    "wu"  'winner-undo
-    "ww"  'other-window
-    "wc"  'delete-window
-    "wC"  'delete-other-windows
-
-    ;; File operations
-    "f"   '(:ignore t :which-key "files")
-    "fc"  'write-file
-    "fe"  '(:ignore t :which-key "emacs")
-    "fed" 'find-user-init-file
-    "feR" 'load-user-init-file
-    "fj"  'dired-jump
-    "fl"  'find-file-literally
-    "fR"  'rename-file-and-buffer
-    "fs"  'save-buffer
-
-    ;; Applications
-    "a"   '(:ignore t :which-key "Applications")
-    "ad"  'dired
-    ":"   'shell-command
-    ";"   'eval-expression
-    "ac"  'calendar
-    "oa"  'org-agenda)
-
-  (general-def 'normal doc-view-mode-map
-    "j"   'doc-view-next-line-or-next-page
-    "k"   'doc-view-previous-line-or-previous-page
-    "gg"  'doc-view-first-page
-    "G"   'doc-view-last-page
-    "C-d" 'doc-view-scroll-up-or-next-page
-    "C-f" 'doc-view-scroll-up-or-next-page
-    "C-b" 'doc-view-scroll-down-or-previous-page)
-
-  (general-def '(normal visual) outline-minor-mode-map
-    "zn"  'outline-next-visible-heading
-    "zp"  'outline-previous-visible-heading
-    "zf"  'outline-forward-same-level
-    "zB"  'outline-backward-same-level)
-
-  (general-def 'normal package-menu-mode-map
-    "i"   'package-menu-mark-install
-    "U"   'package-menu-mark-upgrades
-    "d"   'package-menu-mark-delete
-    "u"   'package-menu-mark-unmark
-    "x"   'package-menu-execute
-    "q"   'quit-window)
-
-  (general-def 'normal calendar-mode-map
-    "h"   'calendar-backward-day
-    "j"   'calendar-forward-week
-    "k"   'calendar-backward-week
-    "l"   'calendar-forward-day
-    "0"   'calendar-beginning-of-week
-    "^"   'calendar-beginning-of-week
-    "$"   'calendar-end-of-week
-    "["   'calendar-backward-year
-    "]"   'calendar-forward-year
-    "("   'calendar-beginning-of-month
-    ")"   'calendar-end-of-month
-    "SPC" 'scroll-other-window
-    "S-SPC" 'scroll-other-window-down
-    "<delete>" 'scroll-other-window-down
-    "<"   'calendar-scroll-right
-    ">"   'calendar-scroll-left
-    "C-b" 'calendar-scroll-right-three-months
-    "C-f" 'calendar-scroll-left-three-months
-    "{"   'calendar-backward-month
-    "}"   'calendar-forward-month
-    "C-k" 'calendar-backward-month
-    "C-j" 'calendar-forward-month
-    "gk"  'calendar-backward-month
-    "gj"  'calendar-forward-month
-    "v"   'calendar-set-mark
-    "."   'calendar-goto-today
-    "q"   'calendar-exit))
+  (use-package general
+    :after which-key
+    :config
+    (general-override-mode 1)
+  
+    (defun find-user-init-file ()
+      "Edit the `user-init-file', in same window."
+      (interactive)
+      (find-file user-init-file))
+    (defun load-user-init-file ()
+      "Load the `user-init-file', in same window."
+      (interactive)
+      (load-file user-init-file))
+  
+    ;;Taken from http://emacsredux.com/blog/2013/05/04/rename-file-and-buffer/
+    (defun rename-file-and-buffer ()
+      "Rename the current buffer and file it is visiting."
+      (interactive)
+      (let ((filename (buffer-file-name)))
+        (if (not (and filename (file-exists-p filename)))
+            (message "Buffer is not visiting a file!")
+          (let ((new-name (read-file-name "New name: " filename)))
+            (cond
+             ((vc-backend filename) (vc-rename-file filename new-name))
+             (t
+              (rename-file filename new-name t)
+              (set-visited-file-name new-name t t)))))))
+  
+  
+    (defun disable-all-themes ()
+      "disable all active themes."
+      (dolist (i custom-enabled-themes)
+        (disable-theme i)))
+  
+    (defadvice load-theme (before disable-themes-first activate)
+      (disable-all-themes))
+  
+    ;; Following lines to cycle through themes adapted from ivan's answer on
+    ;; https://emacs.stackexchange.com/questions/24088/make-a-function-to-toggle-themes
+    (setq my/themes (custom-available-themes))
+    (setq my/themes-index 0)
+  
+    (defun my/cycle-theme ()
+      "Cycles through my themes."
+      (interactive)
+      (setq my/themes-index (% (1+ my/themes-index) (length my/themes)))
+      (my/load-indexed-theme))
+  
+    (defun my/load-indexed-theme ()
+      (load-theme (nth my/themes-index my/themes)))
+  
+    (defun load-leuven-theme ()
+      "Loads `leuven' theme"
+      (interactive)
+      (load-theme 'leuven))
+  
+    (defun load-dichromacy-theme ()
+      "Loads `dichromacy' theme"
+      (interactive)
+      (load-theme 'dichromacy))
+  
+    (general-create-definer tyrant-def
+      :states '(normal visual insert motion emacs)
+      :prefix "SPC"
+      :non-normal-prefix "C-SPC")
+  
+    (general-create-definer despot-def
+      :states '(normal insert)
+      :prefix "SPC"
+      :non-normal-prefix "C-SPC")
+  
+    (general-define-key
+      :keymaps 'key-translation-map
+      "ESC" (kbd "C-g"))
+  
+    (general-def
+      "C-x x" 'eval-defun)
+  
+    (tyrant-def
+      ""     nil
+      "c"   (general-simulate-key "C-c")
+      "h"   (general-simulate-key "C-h")
+      "u"   (general-simulate-key "C-u")
+      "x"   (general-simulate-key "C-x")
+      "X"   'org-capture
+  
+      ;; Package manager
+      "lp"  'list-packages
+  
+      ;; Theme operations
+      "t"   '(:ignore t :which-key "themes")
+      "tn"  'my/cycle-theme
+      "tt"  'load-theme
+      "tl"  'load-leuven-theme
+      "td"  'load-dichromacy-theme
+  
+      ;; Quit operations
+      "q"   '(:ignore t :which-key "quit emacs")
+      "qq"  'kill-emacs
+      "qz"  'delete-frame
+  
+      ;; Buffer operations
+      "b"   '(:ignore t :which-key "buffer")
+      ;; "bb"  'mode-line-other-buffer
+      "bk"  'kill-this-buffer
+      "bn"  'next-buffer
+      "bp"  'previous-buffer
+      ;; "bk"  'kill-buffer-and-window
+      "bR"  'rename-file-and-buffer
+      "br"  'revert-buffer
+  
+      ;; Bookmarks
+      "RET" 'bookmark-bmenu-list
+  
+      ;; Window operations
+      "w"   '(:ignore t :which-key "window")
+      "wm"  'maximize-window
+      "w/"  'split-window-horizontally
+      "wv"  'split-window-vertically
+      "wm"  'maximize-window
+      "wu"  'winner-undo
+      "ww"  'other-window
+      "wc"  'delete-window
+      "wC"  'delete-other-windows
+  
+      ;; File operations
+      "f"   '(:ignore t :which-key "files")
+      "fc"  'write-file
+      "fe"  '(:ignore t :which-key "emacs")
+      "fed" 'find-user-init-file
+      "feR" 'load-user-init-file
+      "fj"  'dired-jump
+      "fl"  'find-file-literally
+      "fR"  'rename-file-and-buffer
+      "fs"  'save-buffer
+  
+      ;; Applications
+      "a"   '(:ignore t :which-key "Applications")
+      "ad"  'dired
+      ":"   'shell-command
+      ";"   'eval-expression
+      "ac"  'calendar
+      "oa"  'org-agenda)
+  
+    (general-def 'normal doc-view-mode-map
+      "j"   'doc-view-next-line-or-next-page
+      "k"   'doc-view-previous-line-or-previous-page
+      "gg"  'doc-view-first-page
+      "G"   'doc-view-last-page
+      "C-d" 'doc-view-scroll-up-or-next-page
+      "C-f" 'doc-view-scroll-up-or-next-page
+      "C-b" 'doc-view-scroll-down-or-previous-page)
+  
+    (general-def '(normal visual) outline-minor-mode-map
+      "zn"  'outline-next-visible-heading
+      "zp"  'outline-previous-visible-heading
+      "zf"  'outline-forward-same-level
+      "zB"  'outline-backward-same-level)
+  
+    (general-def 'normal package-menu-mode-map
+      "i"   'package-menu-mark-install
+      "U"   'package-menu-mark-upgrades
+      "d"   'package-menu-mark-delete
+      "u"   'package-menu-mark-unmark
+      "x"   'package-menu-execute
+      "q"   'quit-window)
+  
+    (general-def 'normal calendar-mode-map
+      "h"   'calendar-backward-day
+      "j"   'calendar-forward-week
+      "k"   'calendar-backward-week
+      "l"   'calendar-forward-day
+      "0"   'calendar-beginning-of-week
+      "^"   'calendar-beginning-of-week
+      "$"   'calendar-end-of-week
+      "["   'calendar-backward-year
+      "]"   'calendar-forward-year
+      "("   'calendar-beginning-of-month
+      ")"   'calendar-end-of-month
+      "SPC" 'scroll-other-window
+      "S-SPC" 'scroll-other-window-down
+      "<delete>" 'scroll-other-window-down
+      "<"   'calendar-scroll-right
+      ">"   'calendar-scroll-left
+      "C-b" 'calendar-scroll-right-three-months
+      "C-f" 'calendar-scroll-left-three-months
+      "{"   'calendar-backward-month
+      "}"   'calendar-forward-month
+      "C-k" 'calendar-backward-month
+      "C-j" 'calendar-forward-month
+      "gk"  'calendar-backward-month
+      "gj"  'calendar-forward-month
+      "v"   'calendar-set-mark
+      "."   'calendar-goto-today
+      "q"   'calendar-exit))
 #+END_SRC
 
 
@@ -440,7 +445,7 @@ source: https://emacs.stackexchange.com/questions/47633/elisp-program-to-insert-
    #+BEGIN_SRC emacs-lisp
    (use-package ranger
      :hook (after-init . ranger-override-dired-mode)
-     :general (tyrant-def "ar" 'ranger))
+     :general (tyrant-def "fd" 'ranger))
    #+END_SRC
 
 
@@ -661,7 +666,7 @@ source: https://emacs.stackexchange.com/questions/47633/elisp-program-to-insert-
      :general
      (tyrant-def
       "SPC" 'helm-M-x
-      "bl"  'helm-mini
+      "bb"  'helm-mini
       "ff"  'helm-find-files
       "fr"  'helm-recentf
       "fL"  'helm-locate))
@@ -881,8 +886,7 @@ source: https://emacs.stackexchange.com/questions/47633/elisp-program-to-insert-
              (org-babel-next-src-block)))
     (setq org-highlight-latex-and-related '(entities script latex)
           org-tags-column 90)
-    (set-org-general-config)
-    )
+    (set-org-general-config))
 #+END_SRC
 
 
@@ -1101,10 +1105,10 @@ Source: https://ianjones.us/own-your-second-brain
 **** Open org-agenda vertically always
 
 #+begin_src emacs-lisp :tangle yes
-(defadvice org-agenda (around split-vertically activate)
-  (let ((split-width-threshold 40)    ; or whatever width makes sense for you
-        (split-height-threshold nil)) ; but never horizontally
-    ad-do-it))
+  ;; (defadvice org-agenda (around split-vertically activate)
+  ;;   (let ((split-width-threshold 40)    ; or whatever width makes sense for you
+  ;;         (split-height-threshold nil)) ; but never horizontally
+  ;;     ad-do-it))
 #+end_src
 
 **** Org Super Agenda
@@ -1730,6 +1734,7 @@ Org related packages
 
 
 * Other configs
+
 
 * Post-processing
 
