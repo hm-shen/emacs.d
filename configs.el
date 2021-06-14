@@ -274,6 +274,9 @@
     "bR"  'rename-file-and-buffer
     "br"  'revert-buffer
 
+    ;; Bookmarks
+    "RET" 'bookmark-bmenu-list
+
     ;; Window operations
     "w"   '(:ignore t :which-key "window")
     "wm"  'maximize-window
