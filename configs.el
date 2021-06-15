@@ -468,6 +468,27 @@
 
 (global-undo-fu-session-mode)
 
+(use-package smartparens
+  :ensure t
+  :hook (after-init . show-smartparens-global-mode)
+  :diminish smartparens-mode
+  :config
+  (require 'smartparens-config)
+  (smartparens-global-mode t)
+  ;; Overlays are too distracting and not terribly helpful. show-parens does
+  ;; this for us already (and is faster), so...
+  (setq sp-highlight-pair-overlay nil
+    sp-highlight-wrap-overlay nil
+    sp-highlight-wrap-tag-overlay nil)
+  ;; don't create a pair with single quote in minibuffer
+  ;; (sp-local-pair 'minibuffer-inactive-mode "'" nil :actions nil)
+  )
+
+(use-package evil-smartparens
+  :ensure t
+  :after smartparens
+  :diminish evil-smartparens-mode)
+
 (use-package company
   :hook (after-init . global-company-mode)
   :config
@@ -1247,7 +1268,7 @@
   :config
   (setq TeX-auto-save t
         TeX-source-correlate-start-server 'synctex
-        ;; LaTeX-electric-left-right-brace t
+        LaTeX-electric-left-right-brace nil
         )
   (defun insert-file-name-base (file)
     "Read file name and insert it at point.
@@ -1276,8 +1297,10 @@
   (org-mode   . turn-on-org-cdlatex)
   (LaTeX-mode . turn-on-cdlatex)
   :config
-  (add-to-list 'cdlatex-parens-pairs '("\\(" . "\\)"))
-  (add-to-list 'cdlatex-parens-pairs '("\\[" . "\\]"))
+  ;; Use \( ... \) instead of $ ... $
+  (setq cdlatex-use-dollar-to-ensure-math nil)
+  ;; (add-to-list 'cdlatex-parens-pairs '("\\(" . "\\)"))
+  ;; (add-to-list 'cdlatex-parens-pairs '("\\[" . "\\]"))
   (setq cdlatex-math-symbol-alist
         '(
           (?0 ("\\varnothing" "\\emptyset" ""))
@@ -1335,6 +1358,18 @@
     "M-;" 'cdlatex-tab)
   (general-def '(normal insert) LaTeX-mode-map
     "M-;" 'cdlatex-tab)
+  ;; Let smartparens do its work
+  (general-def cdlatex-mode-map
+    "$" nil
+    "(" nil
+    "{" nil
+    "[" nil
+    "|" nil
+    "<" nil
+    ;; "^" nil
+    ;; "_" nil
+    [(control return)] nil
+    )
   )
 
 (use-package auctex-latexmk
