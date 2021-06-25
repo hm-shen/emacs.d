@@ -57,7 +57,10 @@
   (setq use-package-always-ensure t))
 
 ;; (setq default-frame-alist '((font . "Courier 10 Pitch-13")))
-(setq default-frame-alist '((font . "Consolas-13")))
+;; (setq default-frame-alist '((font . "Consolas-13")))
+;; (setq default-frame-alist '((font . "Fira Code-13")))
+(setq default-frame-alist '((font . "Source Code Pro-13")))
+
 ;; (setq doom-font (font-spec :family "Monaco" :size 13))
 ;; (setq doom-font (font-spec :family "Source Code Pro" :size 13))
 ;; (setq doom-font (font-spec :family "Courier New" :size 13))
@@ -137,15 +140,15 @@
   (goto-char e)
   (set-marker e nil)))
 
-;; (defun my-prog-mode-hook ()
-;;   ;; (auto-fill-mode)
-;;   (show-paren-mode)
-;;   (whitespace-mode)
-;;   (electric-pair-mode)
-;;   (flycheck-mode)
-;;   (display-line-numbers-mode))
+(defun my-prog-mode-hook ()
+  ;; (auto-fill-mode)
+  ;; (show-paren-mode)
+  ;; (whitespace-mode)
+  ;; (electric-pair-mode)
+  ;; (flycheck-mode)
+  (display-line-numbers-mode))
 
-;; (add-hook 'prog-mode-hook 'my-prog-mode-hook)
+(add-hook 'prog-mode-hook 'my-prog-mode-hook)
 ;; (setq before-save-hook 'nil)
 
 ;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -159,6 +162,16 @@
       (while (re-search-forward "^" nil t)
         (setq counter (+ 1 counter))
         (replace-match (format "%d" counter) nil nil)))))
+
+(require 'tab-bar)
+(tab-bar-mode t)
+(setq tab-bar-close-button-show nil
+      tab-bar-new-button-show nil
+      tab-bar-show nil
+      tab-bar-new-tab-choice "*scratch*")
+
+;; (defun efs/current-tab-name ()
+;;         (alist-get 'name (tab-bar--current-tab)))
 
 (use-package which-key
   :config (which-key-mode 1))
@@ -252,12 +265,22 @@
     ;; Package manager
     "lp"  'list-packages
 
+    ;; Tabs
+    "t"   '(:ignore t :which-key "Tabs")
+    ;; "tn"  'tab-bar-switch-to-next-tab
+    ;; "tp"  'tab-bar-switch-to-prev-tab
+    ;; "tN"  'efs/current-tab-name
+    "tn"  'tab-bar-new-tab
+    "tl"  'tab-list
+    "tc"  'tab-close
+    "tr"  'tab-bar-rename-tab
+
     ;; Theme operations
-    "t"   '(:ignore t :which-key "themes")
-    "tn"  'my/cycle-theme
-    "tt"  'load-theme
-    "tl"  'load-leuven-theme
-    "td"  'load-dichromacy-theme
+    "T"   '(:ignore T :which-key "themes")
+    "Tn"  'my/cycle-theme
+    "Tt"  'load-theme
+    "Tl"  'load-leuven-theme
+    "Td"  'load-dichromacy-theme
 
     ;; Quit operations
     "q"   '(:ignore t :which-key "quit emacs")
@@ -514,7 +537,7 @@
 
 (use-package projectile)
 
-(defvar narrowing-system "helm"
+(defvar narrowing-system "ivy"
   "Sets the narrowing system to use - helm or ivy")
 
 (use-package ivy
@@ -526,7 +549,7 @@
                 ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
     :commands (ivy-switch-buffer)
     :general
-    (tyrant-def "bm"  'ivy-switch-buffer))
+    (tyrant-def "bb"  'ivy-switch-buffer))
 
 (use-package smex
   :if (equal narrowing-system "ivy"))
@@ -741,6 +764,8 @@
   (add-hook 'org-mode-hook 'my-org-mode-hooks)
   :general
   (despot-def org-mode-map
+    "mA"   'org-archive-subtree
+    "mR"   'org-refile
     "me"   'org-export-dispatch
     "mt"   'org-hide-block-toggle
     "mx"   'org-babel-execute-src-block
@@ -1250,6 +1275,42 @@
     (if (not (featurep 'ox-reveal))
         (require 'ox-reveal))))
 
+(use-package org-pomodoro
+:ensure t
+:after org
+:commands (org-pomodoro)
+:config
+(setq
+ org-pomodoro-length 1
+ org-pomodoro-short-break-length 1)
+
+;; Needs terminal-notifier (brew install terminal-notifier)
+(defun notify-osx (title message)
+  (call-process "terminal-notifier"
+                nil 0 nil
+                "-group" "Emacs"
+                "-title" title
+                "-sender" "org.gnu.Emacs"
+                "-message" message))
+
+;; org-pomodoro mode hooks
+(add-hook 'org-pomodoro-finished-hook
+          (lambda ()
+          (notify-osx "Pomodoro completed!" "Time for a break.")))
+
+(add-hook 'org-pomodoro-break-finished-hook
+          (lambda ()
+          (notify-osx "Pomodoro Short Break Finished" "Ready for Another?")))
+
+(add-hook 'org-pomodoro-long-break-finished-hook
+          (lambda ()
+            (notify-osx "Pomodoro Long Break Finished" "Ready for Another?")))
+
+(add-hook 'org-pomodoro-killed-hook
+          (lambda ()
+          (notify-osx "Pomodoro Killed" "One does not simply kill a pomodoro!")))
+)
+
 (use-package tex
   :defer t
   :mode ("\\.tex\\'" . TeX-latex-mode)
@@ -1284,9 +1345,37 @@
     "mr"   'reftex-reference
     "mf"   'insert-file-name-base))
 
+(defun set-bibtex-vars ()
+  (setq bibtex-completion-bibliography '("~/Documents/Papers/master.bib")
+        bibtex-completion-library-path '("~/Documents/Papers/pdfs")
+        bibtex-completion-notes-path "~/Documents/Papers/notes"
+        bibtex-completion-find-additional-pdfs t
+        bibtex-completion-additional-search-fields '(keywords)
+        bibtex-completion-pdf-symbol "⌘"
+        bibtex-completion-notes-symbol "✎"
+        bibtex-autokey-year-length 4
+        bibtex-autokey-name-year-separator "-"
+        bibtex-autokey-year-title-separator "-"
+        bibtex-autokey-titleword-separator "-"
+        bibtex-autokey-titlewords 2
+        bibtex-autokey-titlewords-stretch 1
+        bibtex-autokey-titleword-length 5))
+
+(use-package bibtex
+  :ensure t
+  :init
+  (add-hook 'bibtex-mode-hook 'my-bibtex-mode-hooks)
+  (defun my-bibtex-mode-hooks()
+    (reftex-mode))
+  :config
+  (setq bibtex-dialect 'biblatex)
+  (set-bibtex-vars)
+  )
+
 (use-package reftex
   :ensure t
-  :hook (LaTeX-mode . turn-on-reftex)
+  :hook
+  (LaTeX-mode . turn-on-reftex)
   :config
   (setq reftex-plug-into-AUCTeX t))
 
@@ -1350,8 +1439,7 @@
           ("prop" "Insert proposition env" "" cdlatex-environment ("proposition") t nil)
           ("prob" "Insert problem env" "" cdlatex-environment ("problem") t nil)
           ("sol" "Insert solution env" "" cdlatex-environment ("solution") t nil)
-          ("rmk" "Insert remark env" "" cdlatex-environment ("remark")
-           t nil)))
+          ("rmk" "Insert remark env" "" cdlatex-environment ("remark") t nil)))
     ;; :general keybindings TODO
   :general
   (general-def '(normal insert) org-mode-map
@@ -1403,21 +1491,7 @@
   (setq company-bibtex-org-citation-regex (regexp-opt '("cite:" "\\cite{"))))
 
 (defun set-bibtex-config ()
-  (setq bibtex-completion-bibliography '("~/Documents/Papers/master.bib")
-        bibtex-completion-library-path '("~/Documents/Papers/pdfs")
-        bibtex-completion-notes-path "~/Documents/Papers/notes"
-        bibtex-completion-find-additional-pdfs t
-        bibtex-completion-additional-search-fields '(keywords)
-        bibtex-completion-pdf-symbol "⌘"
-        bibtex-completion-notes-symbol "✎"
-        bibtex-autokey-year-length 4
-        bibtex-autokey-name-year-separator "-"
-        bibtex-autokey-year-title-separator "-"
-        bibtex-autokey-titleword-separator "-"
-        bibtex-autokey-titlewords 2
-        bibtex-autokey-titlewords-stretch 1
-        bibtex-autokey-titleword-length 5)
-
+  (set-bibtex-vars)
   (tyrant-def bibtex-mode-map
     "mi" 'doi-insert-bibtex)
   (general-def 'normal biblio-selection-mode-map
@@ -1460,6 +1534,10 @@
   ;;   )
   )
 
+(use-package anki-editor
+  :ensure t
+  :after org)
+
 (defun doom/open-agenda (&optional arg)
   "Open org-agenda directly"
   (interactive "p")
@@ -1486,9 +1564,9 @@
   (find-file "~/Documents/4-Notes/3-Research/research.org"))
 
 (require 'general)
-(general-define-key
- "M-x" 'helm-M-x)
-(general-def 'normal
+;; (general-define-key
+;;  "M-x" 'helm-M-x)
+(general-def '(normal insert)
  "<f6>" 'helm-bibtex
  "<f7>" #'doom/open-diary
  "<f8>" #'doom/open-gtd
