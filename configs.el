@@ -74,7 +74,7 @@
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-one t)
+  ;; (load-theme 'doom-one t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -85,12 +85,18 @@
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
+
 (use-package anti-zenburn-theme
   :ensure t)
 ;; (load-theme 'doom-solarized-light t)
 ;; (load-theme 'doom-opera-light t)
-(load-theme 'doom-nord-light t)
+;; (load-theme 'doom-nord-light t)
 ;; (load-theme 'anti-zenburn t)
+
+;; different theme for terminal emacs and gui emacs
+(if (not (display-graphic-p))
+    (load-theme 'doom-monokai-classic t)
+(load-theme 'doom-gruvbox-light t))
 
 ;; Hide all minor modes in modeline
 ;; (use-package minions
@@ -330,57 +336,59 @@
     "ac"  'calendar
     "oa"  'org-agenda)
 
-  (general-def 'normal doc-view-mode-map
-    "j"   'doc-view-next-line-or-next-page
-    "k"   'doc-view-previous-line-or-previous-page
-    "gg"  'doc-view-first-page
-    "G"   'doc-view-last-page
-    "C-d" 'doc-view-scroll-up-or-next-page
-    "C-f" 'doc-view-scroll-up-or-next-page
-    "C-b" 'doc-view-scroll-down-or-previous-page)
+  ;; all the rest has been taken care by evil-collection
+  ;; (general-def 'normal doc-view-mode-map
+  ;;   "j"   'doc-view-next-line-or-next-page
+  ;;   "k"   'doc-view-previous-line-or-previous-page
+  ;;   "gg"  'doc-view-first-page
+  ;;   "G"   'doc-view-last-page
+  ;;   "C-d" 'doc-view-scroll-up-or-next-page
+  ;;   "C-f" 'doc-view-scroll-up-or-next-page
+  ;;   "C-b" 'doc-view-scroll-down-or-previous-page)
 
-  (general-def '(normal visual) outline-minor-mode-map
-    "zn"  'outline-next-visible-heading
-    "zp"  'outline-previous-visible-heading
-    "zf"  'outline-forward-same-level
-    "zB"  'outline-backward-same-level)
+  ;; (general-def '(normal visual) outline-minor-mode-map
+  ;;   "zn"  'outline-next-visible-heading
+  ;;   "zp"  'outline-previous-visible-heading
+  ;;   "zf"  'outline-forward-same-level
+  ;;   "zB"  'outline-backward-same-level)
 
-  (general-def 'normal package-menu-mode-map
-    "i"   'package-menu-mark-install
-    "U"   'package-menu-mark-upgrades
-    "d"   'package-menu-mark-delete
-    "u"   'package-menu-mark-unmark
-    "x"   'package-menu-execute
-    "q"   'quit-window)
+  ;; (general-def 'normal package-menu-mode-map
+  ;;   "i"   'package-menu-mark-install
+  ;;   "U"   'package-menu-mark-upgrades
+  ;;   "d"   'package-menu-mark-delete
+  ;;   "u"   'package-menu-mark-unmark
+  ;;   "x"   'package-menu-execute
+  ;;   "q"   'quit-window)
 
-  (general-def 'normal calendar-mode-map
-    "h"   'calendar-backward-day
-    "j"   'calendar-forward-week
-    "k"   'calendar-backward-week
-    "l"   'calendar-forward-day
-    "0"   'calendar-beginning-of-week
-    "^"   'calendar-beginning-of-week
-    "$"   'calendar-end-of-week
-    "["   'calendar-backward-year
-    "]"   'calendar-forward-year
-    "("   'calendar-beginning-of-month
-    ")"   'calendar-end-of-month
-    "SPC" 'scroll-other-window
-    "S-SPC" 'scroll-other-window-down
-    "<delete>" 'scroll-other-window-down
-    "<"   'calendar-scroll-right
-    ">"   'calendar-scroll-left
-    "C-b" 'calendar-scroll-right-three-months
-    "C-f" 'calendar-scroll-left-three-months
-    "{"   'calendar-backward-month
-    "}"   'calendar-forward-month
-    "C-k" 'calendar-backward-month
-    "C-j" 'calendar-forward-month
-    "gk"  'calendar-backward-month
-    "gj"  'calendar-forward-month
-    "v"   'calendar-set-mark
-    "."   'calendar-goto-today
-    "q"   'calendar-exit))
+  ;; (general-def 'normal calendar-mode-map
+  ;;   "h"   'calendar-backward-day
+  ;;   "j"   'calendar-forward-week
+  ;;   "k"   'calendar-backward-week
+  ;;   "l"   'calendar-forward-day
+  ;;   "0"   'calendar-beginning-of-week
+  ;;   "^"   'calendar-beginning-of-week
+  ;;   "$"   'calendar-end-of-week
+  ;;   "["   'calendar-backward-year
+  ;;   "]"   'calendar-forward-year
+  ;;   "("   'calendar-beginning-of-month
+  ;;   ")"   'calendar-end-of-month
+  ;;   "SPC" 'scroll-other-window
+  ;;   "S-SPC" 'scroll-other-window-down
+  ;;   "<delete>" 'scroll-other-window-down
+  ;;   "<"   'calendar-scroll-right
+  ;;   ">"   'calendar-scroll-left
+  ;;   "C-b" 'calendar-scroll-right-three-months
+  ;;   "C-f" 'calendar-scroll-left-three-months
+  ;;   "{"   'calendar-backward-month
+  ;;   "}"   'calendar-forward-month
+  ;;   "C-k" 'calendar-backward-month
+  ;;   "C-j" 'calendar-forward-month
+  ;;   "gk"  'calendar-backward-month
+  ;;   "gj"  'calendar-forward-month
+  ;;   "v"   'calendar-set-mark
+  ;;   "."   'calendar-goto-today
+  ;;   "q"   'calendar-exit)
+  )
 
 (use-package suggest
 :general (tyrant-def "as" 'suggest))
@@ -394,16 +402,13 @@
   :init
   (setq evil-want-C-u-scroll t)
   (setq evil-undo-system 'undo-fu)
+  ;; since we use evil-collection, we set the following var to nil
+  (setq evil-want-keybinding nil)
   :hook (after-init . evil-mode)
   :config
-  (setcdr evil-insert-state-map nil)
-  (define-key evil-insert-state-map [escape] 'evil-normal-state)
-  (evil-set-initial-state 'shell-mode 'normal)
-  (evil-set-initial-state 'doc-view-mode 'normal)
-  (evil-set-initial-state 'package-menu-mode 'normal)
-  (evil-set-initial-state 'biblio-selection-mode 'motion)
-  ;; (evil-set-initial-state 'pdf-view-mode 'normal)
-  (setq doc-view-continuous t)
+  (defalias #'forward-evil-word #'forward-evil-symbol)
+  ;; make evil-search-word look for symbol rather than word boundaries
+  (setq-default evil-symbol-word-search t)
   :general
   (tyrant-def
     "wh"  'evil-window-left
@@ -413,10 +418,12 @@
     "bN"  'evil-buffer-new)
   )
 ;; remove the annoying evil-ret from my motion state!!!!
-(with-eval-after-load 'evil-maps
-  (define-key evil-motion-state-map (kbd "SPC") nil)
-  (define-key evil-motion-state-map (kbd "RET") nil)
-  (define-key evil-motion-state-map (kbd "TAB") nil))
+;; (with-eval-after-load 'evil-maps
+;;   (define-key evil-motion-state-map (kbd "SPC") nil)
+;;   (define-key evil-motion-state-map (kbd "RET") nil)
+;;   (define-key evil-motion-state-map (kbd "TAB") nil)
+;;   (define-key evil-insert-state-map (kbd "RET") 'evil-ret-and-indent)
+;;   )
 
 (use-package evil-org
   :commands evil-org-mode
@@ -475,6 +482,12 @@
   (setq evil-vimish-fold-target-modes '(prog-mode conf-mode text-mode))
   :config
   (global-evil-vimish-fold-mode))
+
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
 
 (use-package undo-fu
   :ensure t
@@ -577,10 +590,8 @@
   :general
   (tyrant-def
    "p"   '(:ignore t :which-key "projectile")
-   "pd"  'counsel-projectile-dired-find-dir
    "po"  'counsel-projectile-find-other-file
    "pf"  'counsel-projectile-find-file
-   "fp"  'counsel-projectile-find-file
    "pb"  'counsel-projectile-switch-to-buffer))
 
 (use-package helm
@@ -634,7 +645,7 @@
   :general
   (tyrant-def
    "g"   '(:ignore t :which-key "git")
-   "gs"  'magit-status))
+   "gg"  'magit-status))
 
 ;; (use-package evil-magit
 ;;   :hook (magit-mode . evil-magit-init))
@@ -1220,6 +1231,58 @@
 ;; ;; Note that 7 is a magic number of the index where you want to insert the command. You may need to change yours.
 ;; (helm-add-action-to-source "Edit notes" 'my/org-ref-notes-function helm-source-bibtex 7)
 
+(use-package org-pomodoro
+:ensure t
+:after org
+:commands (org-pomodoro)
+:config
+(setq
+ org-pomodoro-length 50
+ org-pomodoro-short-break-length 10)
+
+;; Source: https://gist.github.com/jstewart/7664823
+;; Needs terminal-notifier (brew install terminal-notifier)
+(defun notify-osx (title message)
+  (call-process "terminal-notifier"
+                nil 0 nil
+                "-group" "Emacs"
+                "-title" title
+                "-sender" "org.gnu.Emacs"
+                "-message" message))
+
+;; org-pomodoro mode hooks
+(add-hook 'org-pomodoro-finished-hook
+          (lambda ()
+          (notify-osx "Pomodoro completed!" "Time for a break.")))
+
+;; (add-hook 'org-pomodoro-break-finished-hook
+;;           (lambda ()
+;;           (notify-osx "Pomodoro Short Break Finished" "Ready for Another?")))
+
+;; autostart after the short break 
+;; https://github.com/marcinkoziej/org-pomodoro/issues/32
+(add-hook 'org-pomodoro-break-finished-hook
+          (lambda ()
+            (interactive)
+            (notify-osx "Pomodoro Short Break Finished" "Starting the next session...")
+            (point-to-register 1)
+            (org-clock-goto)
+            (org-pomodoro '(50))
+            (register-to-point 1)))
+
+(add-hook 'org-pomodoro-long-break-finished-hook
+          (lambda ()
+            (notify-osx "Pomodoro Long Break Finished" "Ready for Another?")))
+
+(add-hook 'org-pomodoro-killed-hook
+          (lambda ()
+          (notify-osx "Pomodoro Killed" "One does not simply kill a pomodoro!")))
+
+:general
+(despot-def org-mode-map
+  "mps"  'org-pomodoro)
+)
+
 (use-package ob-ipython
   :hook (org-mode . my-ob-ipython-hook)
   :config
@@ -1264,9 +1327,7 @@
 ;;   :hook (org-mode . org-bullets-mode))
 
 (use-package org-pomodoro
-  :general
-  (despot-def org-mode-map
-   "mps"  'org-pomodoro))
+  )
 
 (use-package ox-reveal
   :hook (org-mode . load-org-reveal)
@@ -1274,42 +1335,6 @@
   (defun load-org-reveal ()
     (if (not (featurep 'ox-reveal))
         (require 'ox-reveal))))
-
-(use-package org-pomodoro
-:ensure t
-:after org
-:commands (org-pomodoro)
-:config
-(setq
- org-pomodoro-length 1
- org-pomodoro-short-break-length 1)
-
-;; Needs terminal-notifier (brew install terminal-notifier)
-(defun notify-osx (title message)
-  (call-process "terminal-notifier"
-                nil 0 nil
-                "-group" "Emacs"
-                "-title" title
-                "-sender" "org.gnu.Emacs"
-                "-message" message))
-
-;; org-pomodoro mode hooks
-(add-hook 'org-pomodoro-finished-hook
-          (lambda ()
-          (notify-osx "Pomodoro completed!" "Time for a break.")))
-
-(add-hook 'org-pomodoro-break-finished-hook
-          (lambda ()
-          (notify-osx "Pomodoro Short Break Finished" "Ready for Another?")))
-
-(add-hook 'org-pomodoro-long-break-finished-hook
-          (lambda ()
-            (notify-osx "Pomodoro Long Break Finished" "Ready for Another?")))
-
-(add-hook 'org-pomodoro-killed-hook
-          (lambda ()
-          (notify-osx "Pomodoro Killed" "One does not simply kill a pomodoro!")))
-)
 
 (use-package tex
   :defer t
@@ -1538,20 +1563,24 @@
   :ensure t
   :after org)
 
-(defun doom/open-agenda (&optional arg)
+(defun my/open-agenda (&optional arg)
   "Open org-agenda directly"
   (interactive "p")
   (org-agenda arg "a"))
 
-(defun doom/open-diary ()
+(defun my/open-diary ()
   "Open org-agenda directly"
   (interactive)
   (find-file "~/Documents/Org/diary.org"))
 
-(defun doom/open-gtd ()
+(defun my/open-gtd ()
   "Open org-agenda directly"
   (interactive)
   (find-file "~/Documents/Org/gtd.org"))
+
+(defun my/open-config ()
+  (interactive)
+  (find-file "~/.emacs.d/configs.org"))
 
 (defun doom/open-mybibs ()
   "Open org-agenda directly"
@@ -1564,13 +1593,15 @@
   (find-file "~/Documents/4-Notes/3-Research/research.org"))
 
 (require 'general)
-;; (general-define-key
-;;  "M-x" 'helm-M-x)
+(general-define-key
+ "M-x" 'counsel-M-x ;;'helm-M-x
+ )
+
 (general-def '(normal insert)
- "<f6>" 'helm-bibtex
- "<f7>" #'doom/open-diary
- "<f8>" #'doom/open-gtd
- "<f9>" #'doom/open-agenda
+ "<f6>"  'ivy-bibtex
+ "<f7>"  'my/open-diary
+ "<f8>"  'my/open-gtd
+ "<f9>"  'my/open-agenda
  "<f10>" 'my/copy-idlink-to-clipboard)
 
 ;;(global-set-key)
