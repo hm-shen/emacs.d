@@ -56,10 +56,10 @@
   (require 'use-package)
   (setq use-package-always-ensure t))
 
-;; (setq default-frame-alist '((font . "Courier 10 Pitch-13")))
+(setq default-frame-alist '((font . "Courier 10 Pitch-13")))
 ;; (setq default-frame-alist '((font . "Consolas-13")))
 ;; (setq default-frame-alist '((font . "Fira Code-13")))
-(setq default-frame-alist '((font . "Source Code Pro-13")))
+;; (setq default-frame-alist '((font . "Source Code Pro-13")))
 
 ;; (setq doom-font (font-spec :family "Monaco" :size 13))
 ;; (setq doom-font (font-spec :family "Source Code Pro" :size 13))
@@ -96,7 +96,7 @@
 ;; different theme for terminal emacs and gui emacs
 (if (not (display-graphic-p))
     (load-theme 'doom-monokai-classic t)
-(load-theme 'doom-gruvbox-light t))
+(load-theme 'doom-one-light t))
 
 ;; Hide all minor modes in modeline
 ;; (use-package minions
@@ -408,6 +408,7 @@
   :config
   (defalias #'forward-evil-word #'forward-evil-symbol)
   ;; make evil-search-word look for symbol rather than word boundaries
+  ;; this treat _ as part of the word in python mode when searching
   (setq-default evil-symbol-word-search t)
   :general
   (tyrant-def
@@ -1562,6 +1563,11 @@
 (use-package anki-editor
   :ensure t
   :after org)
+
+;; (use-package nyan-mode
+;;  :ensure t
+;;  :config
+;;  (nyan-mode 1))
 
 (defun my/open-agenda (&optional arg)
   "Open org-agenda directly"

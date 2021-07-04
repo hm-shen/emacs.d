@@ -85,10 +85,10 @@
 ** Font Face
 
 #+BEGIN_SRC emacs-lisp
-  ;; (setq default-frame-alist '((font . "Courier 10 Pitch-13")))
+  (setq default-frame-alist '((font . "Courier 10 Pitch-13")))
   ;; (setq default-frame-alist '((font . "Consolas-13")))
   ;; (setq default-frame-alist '((font . "Fira Code-13")))
-  (setq default-frame-alist '((font . "Source Code Pro-13")))
+  ;; (setq default-frame-alist '((font . "Source Code Pro-13")))
   
   ;; (setq doom-font (font-spec :family "Monaco" :size 13))
   ;; (setq doom-font (font-spec :family "Source Code Pro" :size 13))
@@ -130,7 +130,7 @@
   ;; different theme for terminal emacs and gui emacs
   (if (not (display-graphic-p))
       (load-theme 'doom-monokai-classic t)
-  (load-theme 'doom-gruvbox-light t))
+  (load-theme 'doom-one-light t))
 #+end_src
 
 
@@ -1834,6 +1834,16 @@ Org related packages
   (use-package anki-editor
     :ensure t
     :after org)
+#+end_src
+
+
+** Nyan-mode
+
+#+begin_src emacs-lisp
+  ;; (use-package nyan-mode
+  ;;  :ensure t
+  ;;  :config
+  ;;  (nyan-mode 1)) 
 #+end_src
 
 
