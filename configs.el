@@ -419,12 +419,12 @@
     "bN"  'evil-buffer-new)
   )
 ;; remove the annoying evil-ret from my motion state!!!!
-;; (with-eval-after-load 'evil-maps
-;;   (define-key evil-motion-state-map (kbd "SPC") nil)
-;;   (define-key evil-motion-state-map (kbd "RET") nil)
-;;   (define-key evil-motion-state-map (kbd "TAB") nil)
-;;   (define-key evil-insert-state-map (kbd "RET") 'evil-ret-and-indent)
-;;   )
+(with-eval-after-load 'evil-maps
+  (define-key evil-motion-state-map (kbd "SPC") nil)
+  (define-key evil-motion-state-map (kbd "RET") nil)
+  (define-key evil-motion-state-map (kbd "TAB") nil)
+  (define-key evil-insert-state-map (kbd "RET") 'evil-ret-and-indent)
+  )
 
 (use-package evil-org
   :commands evil-org-mode
@@ -889,7 +889,7 @@
 
 (use-package org-roam
   :ensure t
-  :defer 10
+  :defer t
   :hook
   (after-init . org-roam-mode)
   :custom
@@ -936,12 +936,25 @@
 ")
         ))
 
+;; source: https://yiming.dev/blog/2018/03/02/my-org-refile-workflow/
+(defun my/opened-buffer-files ()
+  "Return the list of files currently opened in emacs"
+  (delq nil
+        (mapcar (lambda (x)
+                  (if (and (buffer-file-name x)
+                           (string-match "\\.org$"
+                                         (buffer-file-name x)))
+                      (buffer-file-name x)))
+                (buffer-list))))
+
 ;; ORG REFILE
 (setq org-refile-targets '(("~/Documents/Org/gtd.org" :maxlevel . 3)
                            ("~/Documents/Org/someday.org" :level . 1)
                            ("~/Documents/Org/gcal.org" :level . 1)
                            ("~/Documents/Org/tickler.org" :maxlevel . 2)
-                           ("~/Documents/Org/diary.org" :maxlevel . 4)))
+                           (my/opened-buffer-files :maxlevel . 9)
+                           ;; ("~/Documents/Org/diary.org" :maxlevel . 4)
+                           ))
 
 (setq org-directory '("~/Documents/Org/" "~/Dropbox/Papers"))
 (setq org-agenda-files
@@ -1282,6 +1295,61 @@
 :general
 (despot-def org-mode-map
   "mps"  'org-pomodoro)
+)
+
+(use-package org-journal
+  :ensure t
+  :defer t
+  :init
+  ;; Change default prefix key; needs to be set before loading org-journal
+  ;; (setq org-journal-prefix-key "C-c j ")
+  (setq org-journal-dir "~/Dropbox/Notes/journal/")
+  :config
+
+  (setq org-journal-file-format "%Y%m%d.org"
+        org-journal-date-format "%e %b %Y (%A)"
+        org-journal-time-format "")
+
+  (defun org-journal-file-header-func (time)
+    "Custom function to create journal header."
+    (concat
+     (pcase org-journal-file-type
+       (`daily "#+TITLE: \n#+DATE: %e %b %Y (%A)\n#+AUTHOR: Haoming Shen\n#+OPTIONS: author:nil date:nil title:nil toc:nil\n#+LaTeX_CLASS: notes")
+       ;; (`weekly "#+TITLE: Weekly Journal\n#+STARTUP: folded")
+       ;; (`monthly "#+TITLE: Monthly Journal\n#+STARTUP: folded")
+       ;; (`yearly "#+TITLE: Yearly Journal\n#+STARTUP: folded")
+       )))
+
+  (setq org-journal-file-header 'org-journal-file-header-func)
+
+  (defun get-journal-file-today ()
+    "Gets filename for today's journal entry."
+    (let ((daily-name (format-time-string "%Y%m%d")))
+      (expand-file-name (concat org-journal-dir daily-name ".org"))))
+
+  (defun journal-file-today ()
+    "Creates and load a journal file based on today's date."
+    (interactive)
+    (find-file (get-journal-file-today)))
+
+  (defun get-journal-file-yesterday ()
+    "Gets filename for yesterday's journal entry."
+    (let* ((yesterday (time-subtract (current-time) (days-to-time 1)))
+           (daily-name (format-time-string "%Y%m%d" yesterday)))
+      (expand-file-name (concat org-journal-dir daily-name ".org"))))
+
+  (defun journal-file-yesterday ()
+    "Creates and load a file based on yesterday's date."
+    (interactive)
+    (find-file (get-journal-file-yesterday)))
+
+  :general
+  (tyrant-def 
+    "j"   '(:ignore t :which-key "org-journal")
+    "ji"  'org-journal-new-entry
+    "jt"  'journal-file-today
+    "jy"  'journal-file-yesterday
+    )
 )
 
 (use-package ob-ipython
